@@ -1,5 +1,6 @@
 import pandas
 import time
+import matplotlib.pyplot as plt
 
 
 # https://stackoverflow.com/questions/3173320/text-progress-bar-in-the-console/30740258
@@ -26,11 +27,12 @@ def printProgressBar(iteration, total, prefix='', suffix='', decimals=1, length=
     #    print()
 
 
-def print_count_of_values_relation(df: pandas.DataFrame, progressBar: bool):
+def print_count_of_values_relation(df: pandas.DataFrame, progressBar: bool, plot: bool):
     """
-    Print how many values could be found in each row
-    :param progressBar:     - Required  :  progressbar printout (Bool)
-    :param df:              - Required  :  dataFrame (pandas.DataFrame)
+    Print how many values could be found in each row.
+    :param progressBar:     - Required  :  progressbar printout (bool)
+    :param df:              - Optional  :  dataFrame (pandas.DataFrame)
+    :param plot:            - Optional  :  plot as linechart (bool)
     """
 
     index = df.index
@@ -46,11 +48,15 @@ def print_count_of_values_relation(df: pandas.DataFrame, progressBar: bool):
             str(df[column].count()) + "/" + str(number_of_rows) + " " + str(
                 "{:.0%}".format(df[column].count() / number_of_rows)))
 
-
         if progressBar == True:
             # Progress Bar
             l = len(list(range(0, number_of_rows)))
             printProgressBar(df[column].count(), l, prefix='Filled:', suffix='Rows', length=50)
             print('')
+
+        if plot == True:
+            df[column].notna().astype(int).plot(x='index', figsize=(16,4)).legend()
+            plt.show()
+            plt.close()
 
         print('')
