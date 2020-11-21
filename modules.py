@@ -1,9 +1,10 @@
 import pandas
 import time
 
-#https://stackoverflow.com/questions/3173320/text-progress-bar-in-the-console/30740258
+
+# https://stackoverflow.com/questions/3173320/text-progress-bar-in-the-console/30740258
 # Print iterations progress
-def printProgressBar (iteration, total, prefix = '', suffix = '', decimals = 1, length = 100, fill = '█', printEnd = "\r"):
+def printProgressBar(iteration, total, prefix='', suffix='', decimals=1, length=100, fill='█', printEnd="\r"):
     """
     Call in a loop to create terminal progress bar
     @params:
@@ -19,12 +20,19 @@ def printProgressBar (iteration, total, prefix = '', suffix = '', decimals = 1, 
     percent = ("{0:." + str(decimals) + "f}").format(100 * (iteration / float(total)))
     filledLength = int(length * iteration // total)
     bar = fill * filledLength + '-' * (length - filledLength)
-    print(f'\r{prefix} |{bar}| {percent}% {suffix}', end = printEnd)
+    print(f'\r{prefix} |{bar}| {percent}% {suffix}', end=printEnd)
     # Print New Line on Complete
-    #if iteration == total:
+    # if iteration == total:
     #    print()
 
-def print_count_of_values_relation(df = pandas.DataFrame):
+
+def print_count_of_values_relation(df: pandas.DataFrame, progressBar: bool):
+    """
+    Print how many values could be found in each row
+    :param progressBar:     - Required  :  progressbar printout (Bool)
+    :param df:              - Required  :  dataFrame (pandas.DataFrame)
+    """
+
     index = df.index
     number_of_rows = len(index)
 
@@ -35,12 +43,14 @@ def print_count_of_values_relation(df = pandas.DataFrame):
         print(column)
         # display(Markdown("# " + column_object))
         print(
-            str(df[column].count()) + "/" + str(number_of_rows) + " " + str("{:.0%}".format(df[column].count() / number_of_rows) ))
+            str(df[column].count()) + "/" + str(number_of_rows) + " " + str(
+                "{:.0%}".format(df[column].count() / number_of_rows)))
 
 
-        # Progress Bar
-        l = len(list(range(0,number_of_rows)))
-        printProgressBar(df[column].count(), l, prefix='Filled:', suffix='Rows', length=50)
+        if progressBar == True:
+            # Progress Bar
+            l = len(list(range(0, number_of_rows)))
+            printProgressBar(df[column].count(), l, prefix='Filled:', suffix='Rows', length=50)
+            print('')
+
         print('')
-        print('')
-
