@@ -1,4 +1,4 @@
-import pandas
+import pandas as pd
 import time
 import matplotlib.pyplot as plt
 
@@ -27,7 +27,7 @@ def printProgressBar(iteration, total, prefix='', suffix='', decimals=1, length=
     #    print()
 
 
-def print_count_of_values_relation(df: pandas.DataFrame, progressBar: bool, plot: bool):
+def print_count_of_values_relation(df: pd.DataFrame, progressBar: bool, plot: bool):
     """
     Print how many values could be found in each row.
     :param progressBar:     - Required  :  progressbar printout (bool)
@@ -60,3 +60,8 @@ def print_count_of_values_relation(df: pandas.DataFrame, progressBar: bool, plot
             plt.close()
 
         print('')
+
+def print_full(df = pd.DataFrame):
+    pd.set_option('display.max_rows', len(df))
+    print(df)
+    pd.reset_option('display.max_rows')
