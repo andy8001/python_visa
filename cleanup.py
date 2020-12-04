@@ -14,6 +14,8 @@ name_case_status = "case_status"
 name_us_economic_sector = "us_economic_sector"
 name_employer_name = "employer_name"
 name_employer_city = "employer_city"
+name_pw_amount_9089 = "prevailing_wage_amount_9089"
+name_pw_unit_of_pay_9089 = "prevailing_wage_unit_of_pay_9089"
 
 
 def generate_cleaned_df():
@@ -64,6 +66,11 @@ def generate_cleaned_df():
     #employer_city
     cleaned_df[name_employer_city] = inital_df["employer_city"]
 
+    #pw_amount_9089
+    cleaned_df[name_pw_amount_9089] = clean_pw_amount_9089(inital_df)
+
+    #pw_unit_of_pay_9089
+    cleaned_df[name_pw_unit_of_pay_9089] = clean_pw_unit_of_pay_9089(inital_df)
 
 
     print(cleaned_df.head())
@@ -112,17 +119,6 @@ def clean_wage_offer_unit_of_pay(inital_df = pd.DataFrame):
 
     #Cells which contain '', even after the merge, will get converted into NaN values. Providing better data for the subsequent analysis.
     temp_df['wage_offer_of_pay_unit_merged'].replace('', np.nan, inplace=True)
-
-    #throughout the datasample different wording is used in the column of the wage unit.
-    #By creating a dictionary containing all abbreviations, we can replace contained long-wording strings by their abbreviations.
-
-    unit_abbreviations = {
-        "Year": "yr",
-        "Month": "mth",
-        "Bi-Weekly": "bi",
-        "Week": "wk",
-        "Hour": "hr"
-    }
 
     temp_df['wage_offer_of_pay_unit_merged'] = normalize_pay_unit_columns(temp_df['wage_offer_of_pay_unit_merged'])
 
@@ -240,3 +236,23 @@ def clean_country_of_citizenship(inital_df=pd.DataFrame):
     temp_df['country_of_citizenship_merged'] = temp_df['country_of_citizenship_merged'].replace('', np.nan,regex=True)
 
     return temp_df['country_of_citizenship_merged']
+
+def clean_pw_amount_9089(inital_df=pd.DataFrame):
+    col_list = ["pw_amount_9089"]
+    temp_df = inital_df[col_list]
+
+    #Firstly, all string types will be transformed into a format, which can be converted into a float type.
+    #Secondly every cell is converted into float.
+    temp_df["pw_amount_9089"] = temp_df["pw_amount_9089"].apply(clean_currency).astype('float')
+
+    return temp_df['pw_amount_9089']
+
+def clean_pw_unit_of_pay_9089(inital_df=pd.DataFrame):
+    col_list = ["pw_unit_of_pay_9089"]
+    temp_df = inital_df[col_list]
+
+    temp_df['pw_unit_of_pay_9089'] = normalize_pay_unit_columns(temp_df['pw_unit_of_pay_9089'])
+
+    return temp_df['pw_unit_of_pay_9089']
+
+
