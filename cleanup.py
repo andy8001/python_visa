@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 
-inital_path = "data/us_perm_visas.csv"
+inital_path = "us_perm_visas.csv"
 name_wage_offer_from = "wage_offer_from"
 name_wage_offer_unit_of_pay = "wage_offer_unit_of_pay"
 name_case_received_date = "case_received_date"
@@ -67,7 +67,7 @@ def generate_cleaned_df():
     cleaned_df[name_employer_city] = inital_df["employer_city"]
 
     print(cleaned_df.head())
-    cleaned_df.to_csv('data/us_perm_visas_cleaned.csv')
+    cleaned_df.to_csv('us_perm_visas_cleaned.csv')
 
 def clean_wage_offer_from(inital_df = pd.DataFrame):
     col_list = ["wage_offer_from_9089", "wage_offered_from_9089"]
