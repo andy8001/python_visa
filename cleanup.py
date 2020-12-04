@@ -64,6 +64,8 @@ def generate_cleaned_df():
     #employer_city
     cleaned_df[name_employer_city] = inital_df["employer_city"]
 
+
+
     print(cleaned_df.head())
     cleaned_df.to_csv('data/us_perm_visas_cleaned.csv')
 
@@ -122,9 +124,22 @@ def clean_wage_offer_unit_of_pay(inital_df = pd.DataFrame):
         "Hour": "hr"
     }
 
-    temp_df['wage_offer_of_pay_unit_merged'] = temp_df['wage_offer_of_pay_unit_merged'].replace(unit_abbreviations)
+    temp_df['wage_offer_of_pay_unit_merged'] = normalize_pay_unit_columns(temp_df['wage_offer_of_pay_unit_merged'])
 
     return temp_df['wage_offer_of_pay_unit_merged']
+
+def normalize_pay_unit_columns(pay_unit_column = pd.DataFrame):
+    #throughout the datasample different wording is used in the column of the pay units.
+    #By creating a dictionary containing all abbreviations, we can replace contained long-wording strings by their abbreviations.
+    unit_abbreviations = {
+        "Year": "yr",
+        "Month": "mth",
+        "Bi-Weekly": "bi",
+        "Week": "wk",
+        "Hour": "hr"
+    }
+
+    return pay_unit_column.replace(unit_abbreviations)
 
 
 def clean_case_received_date(inital_df=pd.DataFrame):
