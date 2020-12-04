@@ -1,0 +1,229 @@
+import pandas as pd
+import numpy as np
+
+inital_path = "data/us_perm_visas.csv"
+name_wage_offer_from = "wage_offer_from"
+name_wage_offer_unit_of_pay = "wage_offer_unit_of_pay"
+name_case_received_date = "case_received_date"
+name_decision_date = "decision_date"
+name_employer_state = "employer_state"
+name_case_number = "case_number"
+name_foreign_worker_info_education_other = "foreign_worker_info_education_other"
+name_country_of_citizenship = "country_of_citizenship"
+name_case_status = "case_status"
+name_us_economic_sector = "us_economic_sector"
+name_employer_name = "employer_name"
+name_employer_city = "employer_city"
+
+
+
+
+def generate_cleaned_df():
+    inital_df = pd.read_csv(inital_path)
+    cleaned_df = pd.DataFrame()
+
+    #wage_offer_from_9089
+    #wage_offered_from_9089
+    cleaned_df[name_wage_offer_from] = clean_wage_offer_from(inital_df)
+
+    #wage_offer_unit_of_pay_9089
+    #wage_offered_unit_of_pay_9089
+    cleaned_df[name_wage_offer_unit_of_pay] = clean_wage_offer_unit_of_pay(inital_df)
+
+    #case_received_date
+    cleaned_df[name_case_received_date] = clean_case_received_date(inital_df)
+
+    #case_received_date
+    cleaned_df[name_case_received_date] = clean_case_received_date(inital_df)
+
+    #decision_date
+    cleaned_df[name_decision_date] = clean_decision_date(inital_df)
+
+    #employer_state
+    cleaned_df[name_employer_state] = clean_employer_state(inital_df)
+
+    #case_no
+    #case_number
+    cleaned_df[name_case_number] = clean_case_number(inital_df)
+
+    #foreign_worker_info_education_other
+    #fw_info_education_other
+    cleaned_df[name_foreign_worker_info_education_other] = clean_foreign_worker_info_education_other(inital_df)
+
+    #country_of_citizenship
+    #country_of_citzenship
+    cleaned_df[name_country_of_citizenship] = clean_country_of_citizenship(inital_df)
+
+    #case_status
+    cleaned_df[name_case_status] = inital_df["case_status"]
+
+    #case_status
+    cleaned_df[name_us_economic_sector] = inital_df["us_economic_sector"]
+
+    #case_status
+    cleaned_df[name_employer_name] = inital_df["employer_name"]
+
+    #employer_city
+    cleaned_df[name_employer_city] = inital_df["employer_city"]
+
+    print(cleaned_df.head())
+    cleaned_df.to_csv('data/us_perm_visas_cleaned.csv')
+
+def clean_wage_offer_from(inital_df = pd.DataFrame):
+    col_list = ["wage_offer_from_9089", "wage_offered_from_9089"]
+    temp_df = inital_df[col_list]
+
+    #Firstly, all string types will be transformed into a format, which can be converted into a float type.
+    #Secondly every cell is converted into float.
+    temp_df["wage_offer_from_9089"] = temp_df["wage_offer_from_9089"].apply(clean_currency).astype('float')
+
+    #The two different columns 'wage_offer_from_9089' and 'wage_offered_from_9089' get merged because they both contain similar information and don't overap each other.
+    #The columns get merged through simmple addition, therefore all na values are replaced by zero.
+    temp_df['wage_offer_from_merged'] = temp_df['wage_offer_from_9089'].fillna(0) + temp_df['wage_offered_from_9089'].fillna(0)
+
+    #Cells which contain zero, even after the merge, will get converted into NaN values. Providing better data for the subsequent analysis.
+    temp_df['wage_offer_from_merged'].replace(0, np.nan, inplace=True)
+
+    #only the cleaned up column 'wage_offer_merged' gets returned
+    return temp_df['wage_offer_from_merged']
+
+def clean_currency(x):
+    """ If the value is a string, then remove delimiters
+    otherwise, the value is numeric and can be converted.
+
+    Additionally the provided data contains two '#############' values. These will get replaced by NaN.
+
+    Source: https://pbpython.com/currency-cleanup.html (with slight changes)
+    """
+    if isinstance(x, str):
+        if x == '#############':
+            x = np.nan
+        else:
+            return(x.replace(',', ''))
+    return(x)
+
+def clean_wage_offer_unit_of_pay(inital_df = pd.DataFrame):
+    col_list = ["wage_offer_unit_of_pay_9089", "wage_offered_unit_of_pay_9089"]
+    temp_df = inital_df[col_list]
+
+    #The two different columns 'wage_offer_unit_of_pay_9089' and 'wage_offered_unit_of_pay_9089' get merged because they both contain similar information and don't overap each other.
+    #The columns get merged through simmple concatenation, therefor all na values are replaced by ''.
+    temp_df['wage_offer_of_pay_unit_merged'] = temp_df['wage_offer_unit_of_pay_9089'].fillna('') + temp_df['wage_offered_unit_of_pay_9089'].fillna('')
+
+    #Cells which contain '', even after the merge, will get converted into NaN values. Providing better data for the subsequent analysis.
+    temp_df['wage_offer_of_pay_unit_merged'].replace('', np.nan, inplace=True)
+
+    #throughout the datasample different wording is used in the column of the wage unit.
+    #By creating a dictionary containing all abbreviations, we can replace contained long-wording strings by their abbreviations.
+
+    unit_abbreviations = {
+        "Year": "yr",
+        "Month": "mth",
+        "Bi-Weekly": "bi",
+        "Week": "wk",
+        "Hour": "hr"
+    }
+
+    temp_df['wage_offer_of_pay_unit_merged'] = temp_df['wage_offer_of_pay_unit_merged'].replace(unit_abbreviations)
+
+    return temp_df['wage_offer_of_pay_unit_merged']
+
+
+def clean_case_received_date(inital_df=pd.DataFrame):
+    col_list = ["case_received_date"]
+    temp_df = inital_df[col_list]
+
+    #Convert to column to datetime
+    temp_df['case_received_date'] = pd.to_datetime(temp_df['case_received_date'])
+
+    return temp_df['case_received_date']
+
+def clean_decision_date(inital_df=pd.DataFrame):
+    col_list = ["decision_date"]
+    temp_df = inital_df[col_list]
+
+    #Convert to column to datetime
+    temp_df['decision_date'] = pd.to_datetime(temp_df['decision_date'])
+
+    return temp_df['decision_date']
+
+def clean_employer_state(inital_df=pd.DataFrame):
+    col_list = ["employer_state"]
+    temp_df = inital_df[col_list]
+
+    #In this column state abbreviations are used simultaneously with long-written state names. This will be changed into long-written state names only.
+
+    ##States
+    web_table = pd.read_html('https://www.infoplease.com/us/postal-information/state-abbreviations-and-state-postal-codes', match='State/District')
+    states_abbreviations_df = web_table[0]
+
+    #Standardized Format
+    states_abbreviations_df['State/District'] = states_abbreviations_df['State/District'].str.upper()
+    abbr_dictionary = states_abbreviations_df.set_index('Postal Code')['State/District'].to_dict()
+
+    #Replace abbreviations by long-names
+    temp_df['employer_state'] = temp_df['employer_state'].replace(abbr_dictionary)
+
+    ##Territories
+    web_table = pd.read_html('https://www.infoplease.com/us/postal-information/state-abbreviations-and-state-postal-codes', match='Territory/Associate')
+    states_abbreviations_df = web_table[0]
+
+    #Standardized Format
+    states_abbreviations_df['Territory/Associate'] = states_abbreviations_df['Territory/Associate'].str.upper()
+    abbr_dictionary = states_abbreviations_df.set_index('Postal Code')['Territory/Associate'].to_dict()
+
+    #Replace abbreviations by long-names
+    temp_df['employer_state'] = temp_df['employer_state'].replace(abbr_dictionary)
+
+
+    #Replace BC with British Columbia
+    temp_df['employer_state'] = temp_df['employer_state'].str.replace('BC', 'British Columbia')
+
+    return temp_df['employer_state']
+
+
+def clean_case_number(inital_df=pd.DataFrame):
+    col_list = ["case_no", "case_number"]
+    temp_df = inital_df[col_list]
+
+    #The two different columns 'case_no' and 'case_number' get merged because they both contain similar information and don't overap each other.
+    #The columns get merged through simmple concatenation, therefor all na values are replaced by ''.
+    temp_df['case_number_merged'] = temp_df['case_no'].fillna('') + temp_df['case_number'].fillna('')
+
+    #Cells which contain '', even after the merge, will get converted into NaN values. Providing better data for the subsequent analysis.
+    temp_df['case_number_merged'].replace('', np.nan, inplace=True)
+
+    return temp_df['case_number_merged']
+
+
+def clean_foreign_worker_info_education_other(inital_df=pd.DataFrame):
+    col_list = ["foreign_worker_info_education_other", "fw_info_education_other"]
+    temp_df = inital_df[col_list]
+
+    temp_df['foreign_worker_info_education_other'] = temp_df['foreign_worker_info_education_other'].replace(r'^\s*$',np.nan,regex=True)
+    temp_df['fw_info_education_other'] = temp_df['fw_info_education_other'].replace(r'^\s*$', np.nan, regex=True)
+    temp_df['foreign_worker_info_education_other'] = temp_df['foreign_worker_info_education_other'].replace('None',np.nan,regex=True)
+    temp_df['fw_info_education_other'] = temp_df['fw_info_education_other'].replace('None', np.nan, regex=True)
+
+    #The two different columns 'foreign_worker_info_education_other' and 'fw_info_education_other' get merged because they both contain similar information and don't overap each other.
+    #The columns get merged through simmple concatenation, therefor all na values are replaced by ''.
+    temp_df['fw_info_education_other_merged'] = temp_df['foreign_worker_info_education_other'].fillna('') + temp_df['fw_info_education_other'].fillna('')
+
+    #Cells which contain '', even after the merge, will get converted into NaN values. Providing better data for the subsequent analysis.
+    temp_df['fw_info_education_other_merged'] = temp_df['fw_info_education_other_merged'].replace(r'^\s*$', np.nan,regex=True)
+
+    return temp_df['fw_info_education_other_merged']
+
+
+def clean_country_of_citizenship(inital_df=pd.DataFrame):
+    col_list = ["country_of_citizenship", "country_of_citzenship"]
+    temp_df = inital_df[col_list]
+
+    #The two different columns 'foreign_worker_info_education_other' and 'fw_info_education_other' get merged because they both contain similar information and don't overap each other.
+    #The columns get merged through simmple concatenation, therefor all na values are replaced by ''.
+    temp_df['country_of_citizenship_merged'] = temp_df['country_of_citizenship'].fillna('') + temp_df['country_of_citzenship'].fillna('')
+
+    #Cells which contain '', even after the merge, will get converted into NaN values. Providing better data for the subsequent analysis.
+    temp_df['country_of_citizenship_merged'] = temp_df['country_of_citizenship_merged'].replace('', np.nan,regex=True)
+
+    return temp_df['country_of_citizenship_merged']
