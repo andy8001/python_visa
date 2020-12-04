@@ -16,8 +16,6 @@ name_employer_name = "employer_name"
 name_employer_city = "employer_city"
 
 
-
-
 def generate_cleaned_df():
     inital_df = pd.read_csv(inital_path)
     cleaned_df = pd.DataFrame()
