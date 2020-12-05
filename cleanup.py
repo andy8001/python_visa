@@ -61,7 +61,7 @@ def generate_cleaned_df():
     cleaned_df[name_us_economic_sector] = inital_df["us_economic_sector"]
 
     #case_status
-    cleaned_df[name_employer_name] = inital_df["employer_name"]
+    cleaned_df[name_employer_name] = clean_employer_name(inital_df)
 
     #employer_city
     cleaned_df[name_employer_city] = inital_df["employer_city"]
@@ -71,6 +71,8 @@ def generate_cleaned_df():
 
     #pw_unit_of_pay_9089
     cleaned_df[name_pw_unit_of_pay_9089] = clean_pw_unit_of_pay_9089(inital_df)
+
+
 
 
     print(cleaned_df.head())
@@ -256,3 +258,10 @@ def clean_pw_unit_of_pay_9089(inital_df=pd.DataFrame):
     return temp_df['pw_unit_of_pay_9089']
 
 
+def clean_employer_name(inital_df=pd.DataFrame):
+    col_list = ["employer_name"]
+    temp_df = inital_df[col_list]
+
+    temp_df["employer_name"] = temp_df["employer_name"].str.upper()
+
+    return temp_df['employer_name']
