@@ -16,6 +16,9 @@ name_employer_name = "employer_name"
 name_employer_city = "employer_city"
 name_pw_amount_9089 = "prevailing_wage_amount_9089"
 name_pw_unit_of_pay_9089 = "prevailing_wage_unit_of_pay_9089"
+name_foreign_worker_info_education = "foreign_worker_info_education"
+name_pw_level_9089 = "pw_level_9089"
+name_pw_soc_title = "pw_soc_title"
 
 
 def generate_cleaned_df():
@@ -64,7 +67,7 @@ def generate_cleaned_df():
     cleaned_df[name_employer_name] = clean_employer_name(inital_df)
 
     #employer_city
-    cleaned_df[name_employer_city] = inital_df["employer_city"]
+    cleaned_df[name_employer_city] = clean_employer_city(inital_df)
 
     #pw_amount_9089
     cleaned_df[name_pw_amount_9089] = clean_pw_amount_9089(inital_df)
@@ -72,8 +75,14 @@ def generate_cleaned_df():
     #pw_unit_of_pay_9089
     cleaned_df[name_pw_unit_of_pay_9089] = clean_pw_unit_of_pay_9089(inital_df)
 
+    #foreign_worker_info_education
+    cleaned_df[name_foreign_worker_info_education] = inital_df["foreign_worker_info_education"]
 
+    #pw_level_9089
+    cleaned_df[name_pw_level_9089] = inital_df["pw_level_9089"]
 
+    #pw_soc_title
+    cleaned_df[name_pw_soc_title] = inital_df["pw_soc_title"]
 
     print(cleaned_df.head())
     cleaned_df.to_csv('data/us_perm_visas_cleaned.csv')
@@ -265,3 +274,13 @@ def clean_employer_name(inital_df=pd.DataFrame):
     temp_df["employer_name"] = temp_df["employer_name"].str.upper()
 
     return temp_df['employer_name']
+
+
+def clean_employer_city(inital_df=pd.DataFrame):
+    col_list = ["employer_city"]
+    temp_df = inital_df[col_list]
+
+    temp_df["employer_city"] = temp_df["employer_city"].str.upper()
+
+    return temp_df['employer_city']
+
