@@ -19,6 +19,8 @@ name_pw_unit_of_pay_9089 = "prevailing_wage_unit_of_pay_9089"
 name_foreign_worker_info_education = "foreign_worker_info_education"
 name_pw_level_9089 = "pw_level_9089"
 name_pw_soc_title = "pw_soc_title"
+name_us_economic_sector = "us_economic_sector"
+name_class_of_admission = "class_of_admission"
 
 
 def generate_cleaned_df():
@@ -83,6 +85,12 @@ def generate_cleaned_df():
 
     #pw_soc_title
     cleaned_df[name_pw_soc_title] = inital_df["pw_soc_title"]
+
+    #us_economic_sector
+    cleaned_df[name_us_economic_sector] = inital_df["us_economic_sector"]
+
+    #class_of_admission
+    cleaned_df[name_class_of_admission] = inital_df["class_of_admission"]
 
     print(cleaned_df.head())
     cleaned_df.to_csv('data/us_perm_visas_cleaned.csv')
