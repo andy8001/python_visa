@@ -21,6 +21,19 @@ name_pw_level_9089 = "pw_level_9089"
 name_pw_soc_title = "pw_soc_title"
 name_us_economic_sector = "us_economic_sector"
 name_class_of_admission = "class_of_admission"
+name_pw_job_title = "pw_job_title_9089"
+
+
+#Vorwort: Was wird im CleanUp alles bereinigt - und was nicht?
+#Im Cleanup werden:
+# - Spalten zusammengeführt
+# - Umwandlungen zu NaN Values durchgeführt ('', 'None', '-')
+# - Groß und Kleinschreibungen stadardisiert
+# - In geringem Umfang Werteumwanldungen mittels Dictionaries durchgenommen
+
+#Was wird nicht bereinigt:
+# - Es werde keine pauschale Änderungen der vorliegenden Strings vorgenommen (z.B. entfernen von Spielstrichen)
+# -- Diese sollen individuell innerhalb der Analyse angepasst werden
 
 
 def generate_cleaned_df():
@@ -91,6 +104,11 @@ def generate_cleaned_df():
 
     #class_of_admission
     cleaned_df[name_class_of_admission] = inital_df["class_of_admission"]
+
+    #pw_job_title_9089
+    #pw_job_title_908
+    #add_these_pw_job_title_9089
+    cleaned_df[name_pw_job_title] = clean_pw_job_title(inital_df)
 
     print(cleaned_df.head())
     cleaned_df.to_csv('data/us_perm_visas_cleaned.csv')
@@ -292,3 +310,28 @@ def clean_employer_city(inital_df=pd.DataFrame):
 
     return temp_df['employer_city']
 
+def clean_pw_job_title(inital_df=pd.DataFrame):
+    col_list = ["pw_job_title_9089", "pw_job_title_908", "add_these_pw_job_title_9089"]
+    temp_df = inital_df[col_list]
+
+    temp_df['pw_job_title_merged'] = temp_df['pw_job_title_9089'].fillna('') + temp_df['pw_job_title_908'].fillna('')
+
+    # Cells which contain '', even after the merge, will get converted into NaN values. Providing better data for the subsequent analysis.
+    temp_df['pw_job_title_merged'].replace('', np.nan, inplace=True)
+
+    # Only NaN Cases of pw_job_title_merged wil be merged with add_these_pw_job_title_9089
+    temp_df['pw_job_title_merged'] = temp_df['pw_job_title_merged'].fillna(temp_df['add_these_pw_job_title_9089'])
+
+    temp_df['pw_job_title_merged'] = temp_df['pw_job_title_merged'].str.lower()
+
+    temp_df["pw_job_title_merged"] = temp_df["pw_job_title_merged"].apply(turn_plural_to_singular_string)
+
+    return temp_df['pw_job_title_merged']
+
+def turn_plural_to_singular_string(x):
+    """ If the value is a string, check if the last character is 's'. If yes, then remove it.
+    """
+    if isinstance(x, str):
+        if x[-1] == 's':
+            x = x[0: len(x)-1]
+    return(x)
