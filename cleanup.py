@@ -336,3 +336,12 @@ def turn_plural_to_singular_string(x):
         if x[-1] == 's':
             x = x[0: len(x)-1]
     return(x)
+
+def convert_case_status_to_certified_or_denied(df = pd.DataFrame):
+
+    # Datensatz enthält Fälle die zurückgezogen wurden 'withdrawn'. Da diese Fälle nicht relevant sind werden sie aus dem Datensatz gelöscht.
+    df = df[df.name_case_status != 'Withdrawn']
+    # Der Status 'certified' und der Status 'certified-expired' werden zu dem Wert 'certified' zusammengefasst.
+    df.loc[df.name_case_status == 'Certified-Expired', 'case_status'] = 'Certified'
+
+    return df
