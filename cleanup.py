@@ -35,6 +35,7 @@ name_pw_job_title = "pw_job_title_9089"
 #Was wird nicht bereinigt:
 # - Es werde keine pauschale Änderungen der vorliegenden Strings vorgenommen (z.B. entfernen von Spielstrichen)
 # -- Diese sollen individuell innerhalb der Analyse angepasst werden
+# - Entfernen von unrealistischen Werten
 
 
 def generate_cleaned_df():
