@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+pd.options.mode.chained_assignment = None  # default='warn'
 
 inital_path = "data/us_perm_visas.csv"
 name_wage_offer_from = "wage_offer_from"
@@ -22,6 +23,7 @@ name_pw_soc_title = "pw_soc_title"
 name_us_economic_sector = "us_economic_sector"
 name_class_of_admission = "class_of_admission"
 name_pw_job_title = "pw_job_title_9089"
+name_foreign_worker_info_birth_country = "foreign_worker_info_birth_country"
 
 
 
@@ -111,6 +113,10 @@ def generate_cleaned_df():
     #pw_job_title_908
     #add_these_pw_job_title_9089
     cleaned_df[name_pw_job_title] = clean_pw_job_title(inital_df)
+
+    #foreign_worker_info_birth_country
+    #fw_info_birth_country
+    cleaned_df[name_foreign_worker_info_birth_country] = clean_foreign_worker_info_birth_country(inital_df)
 
     print(cleaned_df.head())
     cleaned_df.to_csv('data/us_perm_visas_cleaned.csv')
@@ -346,3 +352,12 @@ def convert_case_status_to_certified_or_denied(df = pd.DataFrame):
     df.loc[df.name_case_status == 'Certified-Expired', 'case_status'] = 'Certified'
 
     return df
+
+
+def clean_foreign_worker_info_birth_country(inital_df=pd.DataFrame):
+    col_list = ["foreign_worker_info_birth_country", "fw_info_birth_country"]
+    temp_df = inital_df[col_list]
+
+    temp_df["foreign_worker_info_birth_country"] = temp_df["fw_info_birth_country"].str.upper()
+
+    return temp_df['foreign_worker_info_birth_country']
