@@ -11,11 +11,15 @@ pd.options.mode.chained_assignment = None  # default='warn'
 # - In geringem Umfang Werteumwanldungen, z.B. mittels Dictionaries durchgenommen
 
 # Was wird nicht bereinigt:
-# - Es werde keine pauschale Änderungen der vorliegenden Strings vorgenommen (z.B. entfernen von Spielstrichen)
+# - Es werde keine pauschale Änderungen der vorliegenden Strings vorgenommen (z.B. entfernen von Spiegelstrichen)
 # -- Diese sollen individuell innerhalb der Analyse angepasst werden
 # - Entfernen von unrealistischen Werten
 
-inital_path = "data/us_perm_visas.csv"
+#Spaltennamen definieren
+##Hier können schnelle Spaltenüberschriftenänderungen vorgenommen werden, wenn gewünscht.
+##Achtung: Dadurch kann es jedoch passieren, dass nachgelagerte Analyse nicht mehr funtkionieren
+
+
 name_wage_offer_from = "wage_offer_from"
 name_wage_offer_unit_of_pay = "wage_offer_unit_of_pay"
 name_case_received_date = "case_received_date"
@@ -31,15 +35,17 @@ name_employer_city = "employer_city"
 name_pw_amount_9089 = "prevailing_wage_amount_9089"
 name_pw_unit_of_pay_9089 = "prevailing_wage_unit_of_pay_9089"
 name_foreign_worker_info_education = "foreign_worker_info_education"
-name_pw_level_9089 = "pw_level_9089"
-name_pw_soc_title = "pw_soc_title"
+name_pw_level_9089 = "prevailing_wage_level_9089"
+name_pw_soc_title = "prevailing_wage_soc_title"
 name_class_of_admission = "class_of_admission"
-name_pw_job_title = "pw_job_title_9089"
+name_pw_job_title = "prevailing_wage_job_title_9089"
 name_foreign_worker_info_birth_country = "foreign_worker_info_birth_country"
 
 
-def generate_cleaned_df():
-    inital_df = pd.read_csv(inital_path)
+
+
+def generate_cleaned_df(filepath_orig_csv , folderpath_output):
+    inital_df = pd.read_csv(filepath_orig_csv)
     cleaned_df = pd.DataFrame()
 
     # wage_offer_from_9089
@@ -77,7 +83,7 @@ def generate_cleaned_df():
     # case_status
     cleaned_df[name_case_status] = inital_df["case_status"]
 
-    # case_status
+    # us_economic_sector
     cleaned_df[name_us_economic_sector] = inital_df["us_economic_sector"]
 
     # case_status
@@ -117,7 +123,7 @@ def generate_cleaned_df():
     cleaned_df[name_foreign_worker_info_birth_country] = clean_foreign_worker_info_birth_country(inital_df)
 
     print(cleaned_df.head())
-    cleaned_df.to_csv('data/us_perm_visas_cleaned.csv')
+    cleaned_df.to_csv(folderpath_output + 'us_perm_visas_cleaned.csv')
 
 
 def clean_wage_offer_from(inital_df=pd.DataFrame):
@@ -334,6 +340,9 @@ def clean_employer_city(inital_df=pd.DataFrame):
 
     temp_df["employer_city"] = temp_df["employer_city"].str.upper()
 
+    # Delete special character at the end of a city name
+    temp_df["employer_city"] = temp_df["employer_city"].str.rstrip(',.`')
+
     return temp_df['employer_city']
 
 
@@ -365,15 +374,6 @@ def turn_plural_to_singular_string(x):
     return (x)
 
 
-def convert_case_status_to_certified_or_denied(df=pd.DataFrame):
-    # Datensatz enthält Fälle die zurückgezogen wurden 'withdrawn'. Da diese Fälle nicht relevant sind werden sie aus dem Datensatz gelöscht.
-    df = df[df.name_case_status != 'Withdrawn']
-    # Der Status 'certified' und der Status 'certified-expired' werden zu dem Wert 'certified' zusammengefasst.
-    df.loc[df.name_case_status == 'Certified-Expired', 'case_status'] = 'Certified'
-
-    return df
-
-
 def clean_foreign_worker_info_birth_country(inital_df=pd.DataFrame):
     col_list = ["foreign_worker_info_birth_country", "fw_info_birth_country"]
     temp_df = inital_df[col_list]
@@ -381,3 +381,12 @@ def clean_foreign_worker_info_birth_country(inital_df=pd.DataFrame):
     temp_df["foreign_worker_info_birth_country"] = temp_df["fw_info_birth_country"].str.upper()
 
     return temp_df['foreign_worker_info_birth_country']
+
+#Optional:
+def convert_case_status_to_certified_or_denied(df=pd.DataFrame):
+    # Datensatz enthält Fälle die zurückgezogen wurden 'withdrawn'. Da diese Fälle nicht relevant sind werden sie aus dem Datensatz gelöscht.
+    df = df[df.name_case_status != 'Withdrawn']
+    # Der Status 'certified' und der Status 'certified-expired' werden zu dem Wert 'certified' zusammengefasst.
+    df.loc[df.name_case_status == 'Certified-Expired', 'case_status'] = 'Certified'
+
+    return df
