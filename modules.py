@@ -65,3 +65,49 @@ def print_full(df = pd.DataFrame):
     pd.set_option('display.max_rows', len(df))
     print(df)
     pd.reset_option('display.max_rows')
+
+def invokes_influenced_is_influenced_by_stacked_bar_chart(dataFrameToAnalyze=pd.DataFrame, invokesInfluence=str,
+                                                isInfluencedBy=str, CountOfTopValuesInvokesInfluence=int,
+                                                CountOfTopValuesIsInfluencedBy=int, binnedData=False):
+
+    # top columns of invokesInfluence
+    topDf = dataFrameToAnalyze[invokesInfluence].value_counts().nlargest(
+        CountOfTopValuesInvokesInfluence).reset_index()
+    topDf.columns = [invokesInfluence, 'count']
+    topDf = topDf.set_index([invokesInfluence])
+    df_top = dataFrameToAnalyze.loc[
+        dataFrameToAnalyze[invokesInfluence].isin(topDf.reset_index()[invokesInfluence])]
+
+    # top columns of isInfluencedBy
+    topDfInfluencedBy = dataFrameToAnalyze[isInfluencedBy].value_counts().nlargest(
+        CountOfTopValuesIsInfluencedBy).reset_index()
+    topDfInfluencedBy.columns = [isInfluencedBy, 'count']
+    topDfInfluencedBy = topDfInfluencedBy.set_index([isInfluencedBy])
+    df_top = df_top.loc[df_top[isInfluencedBy].isin(topDfInfluencedBy.reset_index()[isInfluencedBy])]
+
+    df_top_normalized_case_status = df_top[isInfluencedBy].groupby(df_top[invokesInfluence]).value_counts(
+        normalize=True).mul(100).reset_index(name='counts')
+
+    df_top_normalized_case_status = df_top_normalized_case_status.pivot(index=invokesInfluence,
+                                                                        columns=isInfluencedBy, values="counts")
+
+    df_top_normalized_case_status = df_top_normalized_case_status.merge(topDf, left_on=invokesInfluence,
+                                                                        right_on=invokesInfluence)
+
+    if binnedData == True:
+        df_top_normalized_case_status = df_top_normalized_case_status.sort_values(by=[invokesInfluence],
+                                                                                  ascending=False)
+    else:
+        df_top_normalized_case_status = df_top_normalized_case_status.sort_values(by=['count'], ascending=False)
+
+    df_top_normalized_case_status = df_top_normalized_case_status.fillna(0)
+
+    legend = list(df_top_normalized_case_status.loc[:, df_top_normalized_case_status.columns != 'count'].columns)
+
+    # print(df_top_normalized_case_status.head(20))
+
+    # df_top_normalized_case_status[dataFrameToAnalyze[isInfluencedBy].unique()].plot.bar(stacked=True, figsize=(10,5))
+
+    df_top_normalized_case_status[legend].plot.bar(stacked=True, figsize=(20,10))
+
+    plt.show()
