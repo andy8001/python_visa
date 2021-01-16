@@ -360,17 +360,33 @@ def clean_pw_job_title(inital_df=pd.DataFrame):
 
     temp_df['pw_job_title_merged'] = temp_df['pw_job_title_merged'].str.lower()
 
-    temp_df["pw_job_title_merged"] = temp_df["pw_job_title_merged"].apply(turn_plural_to_singular_string)
-
+    #convert plural to singular
+    temp_df["pw_job_title_merged"] = temp_df["pw_job_title_merged"].apply(cutOfflastCharacter, stringToCutOff = "s")
+    #delete characters like ,.*
+    temp_df["pw_job_title_merged"] = cutOffUnusualCharacters(temp_df["pw_job_title_merged"])
     return temp_df['pw_job_title_merged']
 
+def cutOffUnusualCharacters(df = pd.DataFrame):
 
-def turn_plural_to_singular_string(x):
-    """ If the value is a string, check if the last character is 's'. If yes, then remove it.
+    df = df.apply(cutOfflastCharacter, stringToCutOff=",")
+    df = df.apply(cutOfflastCharacter, stringToCutOff="...")
+    df = df.apply(cutOfflastCharacter, stringToCutOff=".")
+    df = df.apply(cutOfflastCharacter, stringToCutOff="*")
+    df = df.apply(cutOfflastCharacter, stringToCutOff="`")
+    df = df.apply(cutOfflastCharacter, stringToCutOff="/")
+    df = df.apply(cutOfflastCharacter, stringToCutOff="?")
+    df = df.apply(cutOfflastCharacter, stringToCutOff="+")
+    return df
+
+def cutOfflastCharacter(x, stringToCutOff = str):
+    """ If the value is a string, check if the last character is char. If yes, then remove it.
     """
+    lengthOfChar = len(stringToCutOff)
+
     if isinstance(x, str):
-        if x[-1] == 's':
-            x = x[0: len(x) - 1]
+        length = len(x)
+        if x[length - lengthOfChar :] == stringToCutOff:
+            x = x[:- lengthOfChar]
     return (x)
 
 
