@@ -401,8 +401,8 @@ def clean_foreign_worker_info_birth_country(inital_df=pd.DataFrame):
 #Optional:
 def convert_case_status_to_certified_or_denied(df=pd.DataFrame):
     # Datensatz enthält Fälle die zurückgezogen wurden 'withdrawn'. Da diese Fälle nicht relevant sind werden sie aus dem Datensatz gelöscht.
-    df = df[df.name_case_status != 'Withdrawn']
+    df = df[df[name_case_status] != 'Withdrawn']
     # Der Status 'certified' und der Status 'certified-expired' werden zu dem Wert 'certified' zusammengefasst.
-    df.loc[df.name_case_status == 'Certified-Expired', 'case_status'] = 'Certified'
+    df.loc[df[name_case_status] == 'Certified-Expired', 'case_status'] = 'Certified'
 
     return df
