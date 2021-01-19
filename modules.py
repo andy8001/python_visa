@@ -66,9 +66,13 @@ def print_full(df = pd.DataFrame):
     print(df)
     pd.reset_option('display.max_rows')
 
-def invokes_influenced_is_influenced_by_stacked_bar_chart(dataFrameToAnalyze=pd.DataFrame, invokesInfluence=str,
-                                                isInfluencedBy=str, CountOfTopValuesInvokesInfluence=int,
-                                                CountOfTopValuesIsInfluencedBy=int, binnedData=False):
+def invokes_influenced_is_influenced_by_stacked_bar_chart(dataFrameToAnalyze=pd.DataFrame,
+                                                invokesInfluence=str,
+                                                isInfluencedBy=str,
+                                                CountOfTopValuesInvokesInfluence=int,
+                                                CountOfTopValuesIsInfluencedBy=int,
+                                                binnedData=False,
+                                                orderedLegend=None):
 
     # top columns of invokesInfluence
     topDf = dataFrameToAnalyze[invokesInfluence].value_counts().nlargest(
@@ -102,12 +106,35 @@ def invokes_influenced_is_influenced_by_stacked_bar_chart(dataFrameToAnalyze=pd.
 
     df_top_normalized_case_status = df_top_normalized_case_status.fillna(0)
 
-    legend = list(df_top_normalized_case_status.loc[:, df_top_normalized_case_status.columns != 'count'].columns)
+    del df_top_normalized_case_status["count"]
 
     # print(df_top_normalized_case_status.head(20))
 
     # df_top_normalized_case_status[dataFrameToAnalyze[isInfluencedBy].unique()].plot.bar(stacked=True, figsize=(10,5))
 
-    df_top_normalized_case_status[legend].plot.bar(stacked=True, figsize=(20,10))
+    #df_top_normalized_case_status[legend].plot.bar(stacked=True, figsize=(20,10))
+
+    if orderedLegend is not None:
+        df_top_normalized_case_status.unstack()
+
+        df_top_normalized_case_status.columns = pd.CategoricalIndex(df_top_normalized_case_status.columns.values,
+                                                                    ordered=True,
+                                                                    categories=orderedLegend)
+
+        df_top_normalized_case_status = df_top_normalized_case_status.sort_index(axis=1)
+
+        ax = df_top_normalized_case_status.plot.bar(stacked=True, figsize=(20, 10))
+        ax.set_ylim(ymax=100)
+
+        handles, labels = ax.get_legend_handles_labels()
+        ax.legend(reversed(handles), reversed(labels))
+    else:
+        # Die Label werden umgekehrt der angezeigten Reihenfolge in der Legende angezeigt. Das wird hiermit umgekehrt.
+        legend = list(df_top_normalized_case_status.loc[:, df_top_normalized_case_status.columns != 'count'].columns)
+        ax = df_top_normalized_case_status[legend].plot.bar(stacked=True, figsize=(20, 10))
+        ax.set_ylim(ymax=100)
+
+        handles, labels = ax.get_legend_handles_labels()
+        ax.legend(reversed(handles), reversed(labels))
 
     plt.show()
