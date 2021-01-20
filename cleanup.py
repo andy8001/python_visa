@@ -246,7 +246,7 @@ def clean_employer_state(inital_df=pd.DataFrame):
     temp_df['employer_state'] = temp_df['employer_state'].replace(abbr_dictionary)
 
     # Replace BC with British Columbia
-    temp_df['employer_state'] = temp_df['employer_state'].str.replace('BC', 'British Columbia')
+    temp_df['employer_state'] = temp_df['employer_state'].str.replace('BC', 'BRITISH COLUMBIA')
 
     return temp_df['employer_state']
 
