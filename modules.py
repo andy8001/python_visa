@@ -1,8 +1,7 @@
 import pandas as pd
-import time
 import matplotlib.pyplot as plt
 
-
+# Quelle der nachfolgenden Funktion ist:
 # https://stackoverflow.com/questions/3173320/text-progress-bar-in-the-console/30740258
 # Print iterations progress
 def printProgressBar(iteration, total, prefix='', suffix='', decimals=1, length=100, fill='█', printEnd="\r"):
@@ -31,8 +30,8 @@ def print_count_of_values_relation(df: pd.DataFrame, progressBar: bool, plot: bo
     """
     Print how many values could be found in each row.
     :param progressBar:     - Required  :  progressbar printout (bool)
-    :param df:              - Optional  :  dataFrame (pandas.DataFrame)
-    :param plot:            - Optional  :  plot as linechart (bool)
+    :param df:              - Required  :  dataFrame (pandas.DataFrame)
+    :param plot:            - Required  :  plot as linechart (bool)
     """
 
     index = df.index
@@ -179,6 +178,8 @@ def invokes_influence_is_influenced_by_stacked_bar_chart(dataFrameToAnalyze=pd.D
         else:
             plt.axhline(medianLineInt, color='r', linestyle='--')
 
-
-
     plt.show()
+
+def areTwoColumnsOverlapping(df=pd.DataFrame, firstColumn = str, secondColumn = str):
+    return (~(df[firstColumn].isna() + df[secondColumn].isna())).sum() > 0
+

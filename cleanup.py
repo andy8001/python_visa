@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+import modules
 
 pd.options.mode.chained_assignment = None  # default='warn'
 
@@ -179,6 +180,8 @@ def clean_wage_offer_unit_of_pay(inital_df=pd.DataFrame):
     return temp_df['wage_offer_of_pay_unit_merged']
 
 
+
+
 def normalize_pay_unit_columns(pay_unit_column=pd.DataFrame):
     # throughout the datasample different wording is used in the column of the pay units.
     # By creating a dictionary containing all abbreviations, we can replace contained long-wording strings by their abbreviations.
@@ -269,14 +272,9 @@ def clean_foreign_worker_info_education_other(inital_df=pd.DataFrame):
     col_list = ["foreign_worker_info_education_other", "fw_info_education_other"]
     temp_df = inital_df[col_list]
 
-    temp_df['foreign_worker_info_education_other'] = temp_df['foreign_worker_info_education_other'].replace(r'^\s*$',
-                                                                                                            np.nan,
-                                                                                                            regex=True)
-    temp_df['fw_info_education_other'] = temp_df['fw_info_education_other'].replace(r'^\s*$', np.nan, regex=True)
-    temp_df['foreign_worker_info_education_other'] = temp_df['foreign_worker_info_education_other'].replace('None',
-                                                                                                            np.nan,
-                                                                                                            regex=True)
-    temp_df['fw_info_education_other'] = temp_df['fw_info_education_other'].replace('None', np.nan, regex=True)
+
+    temp_df['foreign_worker_info_education_other'] = replaceNoneOrEmptyByNa(temp_df['foreign_worker_info_education_other'])
+    temp_df['fw_info_education_other'] = replaceNoneOrEmptyByNa(temp_df['foreign_worker_info_education_other'])
 
     # The two different columns 'foreign_worker_info_education_other' and 'fw_info_education_other' get merged because they both contain similar information and don't overap each other.
     # The columns get merged through simmple concatenation, therefor all na values are replaced by ''.
@@ -289,6 +287,17 @@ def clean_foreign_worker_info_education_other(inital_df=pd.DataFrame):
 
     return temp_df['fw_info_education_other_merged']
 
+
+def replaceNoneOrEmptyByNa(inital_df=pd.DataFrame):
+    temp_df = inital_df
+
+    # Leerwerte und 'None' werden zu NaN umgewandelt.
+    temp_df = temp_df.replace('None', np.nan, regex=True)
+    temp_df = temp_df.replace(r'^\s*$', np.nan, regex=True)
+    temp_df = temp_df.replace('', np.nan, regex=True)
+    temp_df = temp_df.replace(['NaN', 'NaT', 'nan', 'None', 'none', '-'], np.nan)
+
+    return temp_df
 
 def clean_country_of_citizenship(inital_df=pd.DataFrame):
     col_list = ["country_of_citizenship", "country_of_citzenship"]
@@ -350,20 +359,18 @@ def clean_pw_job_title(inital_df=pd.DataFrame):
     col_list = ["pw_job_title_9089", "pw_job_title_908", "add_these_pw_job_title_9089"]
     temp_df = inital_df[col_list]
 
-    temp_df['pw_job_title_merged'] = temp_df['pw_job_title_9089'].fillna('') + temp_df['pw_job_title_908'].fillna('')
+    temp_df['pw_job_title_merged'] = mergeTwoColumns(temp_df, 'pw_job_title_9089', 'pw_job_title_908')
+    temp_df['pw_job_title_merged'] = mergeTwoColumns(temp_df, 'pw_job_title_merged', 'add_these_pw_job_title_9089')
 
-    # Cells which contain '', even after the merge, will get converted into NaN values. Providing better data for the subsequent analysis.
-    temp_df['pw_job_title_merged'].replace('', np.nan, inplace=True)
-
-    # Only NaN Cases of pw_job_title_merged wil be merged with add_these_pw_job_title_9089
-    temp_df['pw_job_title_merged'] = temp_df['pw_job_title_merged'].fillna(temp_df['add_these_pw_job_title_9089'])
 
     temp_df['pw_job_title_merged'] = temp_df['pw_job_title_merged'].str.lower()
 
-    #convert plural to singular
-    temp_df["pw_job_title_merged"] = temp_df["pw_job_title_merged"].apply(cutOfflastCharacter, stringToCutOff = "s")
     #delete characters like ,.*
     temp_df["pw_job_title_merged"] = cutOffUnusualCharacters(temp_df["pw_job_title_merged"])
+
+    #convert plural to singular
+    temp_df["pw_job_title_merged"] = temp_df["pw_job_title_merged"].apply(cutOfflastCharacter, stringToCutOff = "s")
+
     return temp_df['pw_job_title_merged']
 
 def cutOffUnusualCharacters(df = pd.DataFrame):
@@ -397,6 +404,26 @@ def clean_foreign_worker_info_birth_country(inital_df=pd.DataFrame):
     temp_df["foreign_worker_info_birth_country"] = temp_df["fw_info_birth_country"].str.upper()
 
     return temp_df['foreign_worker_info_birth_country']
+
+def mergeTwoColumns(inital_df=pd.DataFrame, firstColumn = str, secondColumn = str):
+    temp_df = inital_df
+    #Caution: Only works with non-overalpping values
+
+    if modules.areTwoColumnsOverlapping(temp_df, firstColumn, secondColumn) == True:
+        temp_df['merged'] = temp_df[firstColumn].fillna(temp_df[secondColumn])
+        print("Achtung: Es liegen überlappende Spalten vor. Die erste Spalte wurde bei fehlenden Werte mit Inhalten der zweiten Spalte befüllt.")
+    else:
+        # The two different columns get merged, normally because they both contain similar information and don't overap each other.
+        # The columns get merged through simmple concatenation, therefore all na values are replaced by ''.
+        temp_df['merged'] = temp_df[firstColumn].fillna('') + temp_df[secondColumn].fillna('')
+        # Cells which contain '', even after the merge, will get converted into NaN values. Providing better data for the subsequent analysis.
+        temp_df['merged'].replace('', np.nan, inplace=True)
+
+        print("Spalten waren nicht überlappend und wurden fehlerfrei zusammengeführt.")
+
+    return temp_df['merged']
+
+
 
 #Optional:
 def convert_case_status_to_certified_or_denied(df=pd.DataFrame):
