@@ -66,15 +66,15 @@ def print_full(df = pd.DataFrame):
     print(df)
     pd.reset_option('display.max_rows')
 
-def invokes_influenced_is_influenced_by_stacked_bar_chart(dataFrameToAnalyze=pd.DataFrame,
-                                                invokesInfluence=str,
-                                                isInfluencedBy=str,
-                                                CountOfTopValuesInvokesInfluence=int,
-                                                CountOfTopValuesIsInfluencedBy=int,
-                                                binnedData=False,
-                                                orderedLegend=None,
-                                                medianLineInt=None,
-                                                barh = False):
+def invokes_influence_is_influenced_by_stacked_bar_chart(dataFrameToAnalyze=pd.DataFrame,
+                                                         invokesInfluence=str,
+                                                         isInfluencedBy=str,
+                                                         CountOfTopValuesInvokesInfluence=int,
+                                                         CountOfTopValuesIsInfluencedBy=int,
+                                                         sortAlphabetically=False,
+                                                         orderedLegend=None,
+                                                         medianLineInt=None,
+                                                         barh = False):
 
     # top columns of invokesInfluence
     topDf = dataFrameToAnalyze[invokesInfluence].value_counts().nlargest(
@@ -100,7 +100,7 @@ def invokes_influenced_is_influenced_by_stacked_bar_chart(dataFrameToAnalyze=pd.
     df_top_normalized_case_status = df_top_normalized_case_status.merge(topDf, left_on=invokesInfluence,
                                                                         right_on=invokesInfluence)
 
-    if binnedData == True:
+    if sortAlphabetically == True:
         df_top_normalized_case_status = df_top_normalized_case_status.sort_values(by=[invokesInfluence],
                                                                                   ascending=False)
     else:
@@ -126,8 +126,6 @@ def invokes_influenced_is_influenced_by_stacked_bar_chart(dataFrameToAnalyze=pd.
         df_top_normalized_case_status = df_top_normalized_case_status.sort_index(axis=1)
         if barh == True:
             ax = df_top_normalized_case_status.plot.barh(stacked=True, figsize=(20, 10))
-            #ax.set_ylim(ymax=100)
-            #plt.axis('tight')
             ax.set_xlim(xmax=100)
             ax.invert_yaxis()
 
@@ -142,8 +140,6 @@ def invokes_influenced_is_influenced_by_stacked_bar_chart(dataFrameToAnalyze=pd.
             ax.legend(reversed(handles), reversed(labels), loc="center left", bbox_to_anchor=(1, 0.5))
 
 
-
-
         #Die Legende soll außerhalb des Graphen angezeigt werden
         #https://stackoverflow.com/questions/4700614/how-to-put-the-legend-out-of-the-plot
         # Shrink current axis by 20%
@@ -156,8 +152,6 @@ def invokes_influenced_is_influenced_by_stacked_bar_chart(dataFrameToAnalyze=pd.
 
         if barh == True:
             ax = df_top_normalized_case_status[legend].plot.barh(stacked=True, figsize=(20, 10))
-            #ax.set_ylim(ymax=100)
-            #plt.axis('tight')
             ax.set_xlim(xmax=100)
             ax.invert_yaxis()
             handles, labels = ax.get_legend_handles_labels()
