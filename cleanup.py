@@ -340,8 +340,8 @@ def clean_employer_city(inital_df=pd.DataFrame):
 
     temp_df["employer_city"] = temp_df["employer_city"].str.upper()
 
-    # Delete special character at the end of a city name
-    temp_df["employer_city"] = temp_df["employer_city"].str.rstrip(',.`')
+    # Delete uncommon characters at the end of a city name
+    temp_df["employer_city"] = cutOffUnusualCharacters(temp_df["employer_city"])
 
     return temp_df['employer_city']
 
