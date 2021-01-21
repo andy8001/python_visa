@@ -21,9 +21,6 @@ def printProgressBar(iteration, total, prefix='', suffix='', decimals=1, length=
     filledLength = int(length * iteration // total)
     bar = fill * filledLength + '-' * (length - filledLength)
     print(f'\r{prefix} |{bar}| {percent}% {suffix}', end=printEnd)
-    # Print New Line on Complete
-    # if iteration == total:
-    #    print()
 
 
 def print_count_of_values_relation(df: pd.DataFrame, progressBar: bool, plot: bool):
@@ -33,6 +30,9 @@ def print_count_of_values_relation(df: pd.DataFrame, progressBar: bool, plot: bo
     :param df:              - Required  :  dataFrame (pandas.DataFrame)
     :param plot:            - Required  :  plot as linechart (bool)
     """
+    #To explain the resulting graphs: The X - Axis shows the index of all values.We
+    # The Y - Axis shows if a row is filled with a actual value.
+    # Not NaN Values are displayed as 1, NaN values are displayed as 0.
 
     index = df.index
     number_of_rows = len(index)
