@@ -72,7 +72,9 @@ def invokes_influenced_is_influenced_by_stacked_bar_chart(dataFrameToAnalyze=pd.
                                                 CountOfTopValuesInvokesInfluence=int,
                                                 CountOfTopValuesIsInfluencedBy=int,
                                                 binnedData=False,
-                                                orderedLegend=None):
+                                                orderedLegend=None,
+                                                medianLineInt=None,
+                                                barh = False):
 
     # top columns of invokesInfluence
     topDf = dataFrameToAnalyze[invokesInfluence].value_counts().nlargest(
@@ -122,19 +124,67 @@ def invokes_influenced_is_influenced_by_stacked_bar_chart(dataFrameToAnalyze=pd.
                                                                     categories=orderedLegend)
 
         df_top_normalized_case_status = df_top_normalized_case_status.sort_index(axis=1)
+        if barh == True:
+            ax = df_top_normalized_case_status.plot.barh(stacked=True, figsize=(20, 10))
+            #ax.set_ylim(ymax=100)
+            #plt.axis('tight')
+            ax.set_xlim(xmax=100)
+            ax.invert_yaxis()
 
-        ax = df_top_normalized_case_status.plot.bar(stacked=True, figsize=(20, 10))
-        ax.set_ylim(ymax=100)
+            handles, labels = ax.get_legend_handles_labels()
+            ax.legend(handles, labels, loc="center left", bbox_to_anchor=(1, 0.5))
+        else:
+            ax = df_top_normalized_case_status.plot.bar(stacked=True, figsize=(20, 10))
+            ax.set_ylim(ymax=100)
 
-        handles, labels = ax.get_legend_handles_labels()
-        ax.legend(reversed(handles), reversed(labels))
+            #Die Label soll vertauscht werden um die Lesbarkeit des Graphen zu vereinfachen
+            handles, labels = ax.get_legend_handles_labels()
+            ax.legend(reversed(handles), reversed(labels), loc="center left", bbox_to_anchor=(1, 0.5))
+
+
+
+
+        #Die Legende soll außerhalb des Graphen angezeigt werden
+        #https://stackoverflow.com/questions/4700614/how-to-put-the-legend-out-of-the-plot
+        # Shrink current axis by 20%
+        box = ax.get_position()
+        ax.set_position([box.x0, box.y0, box.width * 0.9, box.height])
+
     else:
         # Die Label werden umgekehrt der angezeigten Reihenfolge in der Legende angezeigt. Das wird hiermit umgekehrt.
         legend = list(df_top_normalized_case_status.loc[:, df_top_normalized_case_status.columns != 'count'].columns)
-        ax = df_top_normalized_case_status[legend].plot.bar(stacked=True, figsize=(20, 10))
-        ax.set_ylim(ymax=100)
 
-        handles, labels = ax.get_legend_handles_labels()
-        ax.legend(reversed(handles), reversed(labels))
+        if barh == True:
+            ax = df_top_normalized_case_status[legend].plot.barh(stacked=True, figsize=(20, 10))
+            #ax.set_ylim(ymax=100)
+            #plt.axis('tight')
+            ax.set_xlim(xmax=100)
+            ax.invert_yaxis()
+            handles, labels = ax.get_legend_handles_labels()
+            ax.legend(handles, labels, loc="center left", bbox_to_anchor=(1, 0.5))
+
+        else:
+            ax = df_top_normalized_case_status[legend].plot.bar(stacked=True, figsize=(20, 10))
+            ax.set_ylim(ymax=100)
+
+            #Die Label soll vertauscht werden um die Lesbarkeit des Graphen zu vereinfachen
+            handles, labels = ax.get_legend_handles_labels()
+            ax.legend(reversed(handles), reversed(labels), loc="center left", bbox_to_anchor=(1, 0.5))
+
+        # Die Legende soll außerhalb des Graphen angezeigt werden
+        # https://stackoverflow.com/questions/4700614/how-to-put-the-legend-out-of-the-plot
+        # Shrink current axis by 20%
+        box = ax.get_position()
+        ax.set_position([box.x0, box.y0, box.width * 0.9, box.height])
+
+    if medianLineInt is not None:
+        plt.axhline(medianLineInt, color='r', linestyle='--')
+
+        if barh == True:
+            plt.axvline(medianLineInt, color='r', linestyle='--')
+        else:
+            plt.axhline(medianLineInt, color='r', linestyle='--')
+
+
 
     plt.show()
