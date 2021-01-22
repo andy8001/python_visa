@@ -16,11 +16,7 @@ pd.options.mode.chained_assignment = None  # default='warn'
 # -- Diese sollen individuell innerhalb der Analyse angepasst werden
 # - Entfernen von unrealistischen Werten
 
-#Spaltennamen definieren
-##Hier können schnelle Spaltenüberschriftenänderungen vorgenommen werden, wenn gewünscht.
-##Achtung: Dadurch kann es jedoch passieren, dass nachgelagerte Analysen nicht mehr funtktionieren
-
-
+# Declare/ Change Column Headers
 name_wage_offer_from = "wage_offer_from"
 name_wage_offer_unit_of_pay = "wage_offer_unit_of_pay"
 name_case_received_date = "case_received_date"

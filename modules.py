@@ -30,7 +30,7 @@ def print_count_of_values_relation(df: pd.DataFrame, progressBar: bool, plot: bo
     :param df:              - Required  :  dataFrame (pandas.DataFrame)
     :param plot:            - Required  :  plot as linechart (bool)
     """
-    #To explain the resulting graphs: The X - Axis shows the index of all values.We
+    # To explain the resulting graphs: The X - Axis shows the index of all values.We
     # The Y - Axis shows if a row is filled with a actual value.
     # Not NaN Values are displayed as 1, NaN values are displayed as 0.
 
@@ -60,11 +60,13 @@ def print_count_of_values_relation(df: pd.DataFrame, progressBar: bool, plot: bo
 
         print('')
 
+# Print the complete dataFrame
 def print_full(df = pd.DataFrame):
     pd.set_option('display.max_rows', len(df))
     print(df)
     pd.reset_option('display.max_rows')
 
+# Special bar chart
 def invokes_influence_is_influenced_by_stacked_bar_chart(dataFrameToAnalyze=pd.DataFrame,
                                                          invokesInfluence=str,
                                                          isInfluencedBy=str,
@@ -74,6 +76,19 @@ def invokes_influence_is_influenced_by_stacked_bar_chart(dataFrameToAnalyze=pd.D
                                                          orderedLegend=None,
                                                          medianLineInt=None,
                                                          barh = False):
+    """
+    Creates a stacked bar chart, to display influencing factors on a influenced factor.
+    @params:
+        dataFrameToAnalyze                   - Required  : dataFrame which contains the influenced and influencing factors
+        invokesInfluence                     - Required  : String of the column, which is suspected to be influencal
+        isInfluencedBy                       - Required  : String of the column, which is suspected to be influenced by invokesInfluence
+        CountOfTopValuesInvokesInfluence     - Required  : max number of invokesInfluence-entries to be displayed
+        CountOfTopValuesIsInfluencedBy       - Required  : max number of isInfluencedBy-entries to be displayed
+        sortAlphabetically                   - Optional  : entries are normally sorted by they absolute counts, set to True if you need alphabetical ordering
+        orderedLegend                        - Optional  : pass a list of catageries if you want the legend to be sorted by a customized order
+        medianLineInt                        - Optional  : pass a median value, if you want to display a median line, enhances readability
+        barh                                 - Optional  : the chart will be platted as a horizontal barchart, when set to True
+    """
 
     # top columns of invokesInfluence
     topDf = dataFrameToAnalyze[invokesInfluence].value_counts().nlargest(
@@ -92,10 +107,8 @@ def invokes_influence_is_influenced_by_stacked_bar_chart(dataFrameToAnalyze=pd.D
 
     df_top_normalized_case_status = df_top[isInfluencedBy].groupby(df_top[invokesInfluence]).value_counts(
         normalize=True).mul(100).reset_index(name='counts')
-
     df_top_normalized_case_status = df_top_normalized_case_status.pivot(index=invokesInfluence,
                                                                         columns=isInfluencedBy, values="counts")
-
     df_top_normalized_case_status = df_top_normalized_case_status.merge(topDf, left_on=invokesInfluence,
                                                                         right_on=invokesInfluence)
 
@@ -106,14 +119,7 @@ def invokes_influence_is_influenced_by_stacked_bar_chart(dataFrameToAnalyze=pd.D
         df_top_normalized_case_status = df_top_normalized_case_status.sort_values(by=['count'], ascending=False)
 
     df_top_normalized_case_status = df_top_normalized_case_status.fillna(0)
-
     del df_top_normalized_case_status["count"]
-
-    # print(df_top_normalized_case_status.head(20))
-
-    # df_top_normalized_case_status[dataFrameToAnalyze[isInfluencedBy].unique()].plot.bar(stacked=True, figsize=(10,5))
-
-    #df_top_normalized_case_status[legend].plot.bar(stacked=True, figsize=(20,10))
 
     if orderedLegend is not None:
         df_top_normalized_case_status.unstack()
@@ -138,10 +144,8 @@ def invokes_influence_is_influenced_by_stacked_bar_chart(dataFrameToAnalyze=pd.D
             handles, labels = ax.get_legend_handles_labels()
             ax.legend(reversed(handles), reversed(labels), loc="center left", bbox_to_anchor=(1, 0.5))
 
-
         #Die Legende soll außerhalb des Graphen angezeigt werden
         #https://stackoverflow.com/questions/4700614/how-to-put-the-legend-out-of-the-plot
-        # Shrink current axis by 20%
         box = ax.get_position()
         ax.set_position([box.x0, box.y0, box.width * 0.9, box.height])
 
@@ -166,13 +170,11 @@ def invokes_influence_is_influenced_by_stacked_bar_chart(dataFrameToAnalyze=pd.D
 
         # Die Legende soll außerhalb des Graphen angezeigt werden
         # https://stackoverflow.com/questions/4700614/how-to-put-the-legend-out-of-the-plot
-        # Shrink current axis by 20%
         box = ax.get_position()
         ax.set_position([box.x0, box.y0, box.width * 0.9, box.height])
 
     if medianLineInt is not None:
         plt.axhline(medianLineInt, color='r', linestyle='--')
-
         if barh == True:
             plt.axvline(medianLineInt, color='r', linestyle='--')
         else:
@@ -180,6 +182,7 @@ def invokes_influence_is_influenced_by_stacked_bar_chart(dataFrameToAnalyze=pd.D
 
     plt.show()
 
+# Detect Overlapping columns
 def areTwoColumnsOverlapping(df=pd.DataFrame, firstColumn = str, secondColumn = str):
     return (~(df[firstColumn].isna() + df[secondColumn].isna())).sum() > 0
 
