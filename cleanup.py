@@ -8,8 +8,8 @@ pd.options.mode.chained_assignment = None  # default='warn'
 # Im Cleanup werden:
 # - Spalten zusammengeführt
 # - Umwandlungen zu NaN Values durchgeführt ('', 'None', '-')
-# - Groß und Kleinschreibungen stadardisiert
-# - In geringem Umfang Werteumwanldungen, z.B. mittels Dictionaries durchgenommen
+# - Groß- und Kleinschreibungen standardisiert
+# - In geringem Umfang Werteumwanldungen, z.B. mittels Dictionaries durchgeführt
 
 # Was wird nicht bereinigt:
 # - Es werde keine pauschale Änderungen der vorliegenden Strings vorgenommen (z.B. entfernen von Spiegelstrichen)
@@ -18,7 +18,7 @@ pd.options.mode.chained_assignment = None  # default='warn'
 
 #Spaltennamen definieren
 ##Hier können schnelle Spaltenüberschriftenänderungen vorgenommen werden, wenn gewünscht.
-##Achtung: Dadurch kann es jedoch passieren, dass nachgelagerte Analyse nicht mehr funtkionieren
+##Achtung: Dadurch kann es jedoch passieren, dass nachgelagerte Analysen nicht mehr funtktionieren
 
 
 name_wage_offer_from = "wage_offer_from"
@@ -136,20 +136,19 @@ def clean_wage_offer_from(inital_df=pd.DataFrame):
     temp_df["wage_offer_from_9089"] = temp_df["wage_offer_from_9089"].apply(clean_currency).astype('float')
 
     # The two different columns 'wage_offer_from_9089' and 'wage_offered_from_9089' get merged because they both contain similar information and don't overap each other.
-    # The columns get merged through simmple addition, therefore all na values are replaced by zero.
-    temp_df['wage_offer_from_merged'] = temp_df['wage_offer_from_9089'].fillna(0) + temp_df[
-        'wage_offered_from_9089'].fillna(0)
+    # The columns get merged through simmple addition, therefore all NaN values are replaced by zero.
+    temp_df['wage_offer_from_merged'] = mergeTwoColumns(temp_df, "wage_offer_from_9089", "wage_offered_from_9089")
 
     # Cells which contain zero, even after the merge, will get converted into NaN values. Providing better data for the subsequent analysis.
     temp_df['wage_offer_from_merged'].replace(0, np.nan, inplace=True)
 
-    # only the cleaned up column 'wage_offer_merged' gets returned
+    # Only the cleaned up column 'wage_offer_merged' gets returned
     return temp_df['wage_offer_from_merged']
 
 
 def clean_currency(x):
-    """ If the value is a string, then remove delimiters
-    otherwise, the value is numeric and can be converted.
+    """ If the value is a string, then remove delimiters.
+    Otherwise, the value is numeric and can be converted.
 
     Additionally the provided data contains two '#############' values. These will get replaced by NaN.
 
@@ -168,22 +167,19 @@ def clean_wage_offer_unit_of_pay(inital_df=pd.DataFrame):
     temp_df = inital_df[col_list]
 
     # The two different columns 'wage_offer_unit_of_pay_9089' and 'wage_offered_unit_of_pay_9089' get merged because they both contain similar information and don't overap each other.
-    # The columns get merged through simmple concatenation, therefor all na values are replaced by ''.
+    # The columns get merged through simmple concatenation, therefore all NaN values are replaced by ''.
     temp_df['wage_offer_of_pay_unit_merged'] = temp_df['wage_offer_unit_of_pay_9089'].fillna('') + temp_df[
         'wage_offered_unit_of_pay_9089'].fillna('')
 
     # Cells which contain '', even after the merge, will get converted into NaN values. Providing better data for the subsequent analysis.
     temp_df['wage_offer_of_pay_unit_merged'].replace('', np.nan, inplace=True)
 
-    temp_df['wage_offer_of_pay_unit_merged'] = normalize_pay_unit_columns(temp_df['wage_offer_of_pay_unit_merged'])
+    temp_df['wage_offer_of_pay_unit_merged'] = standardize_pay_unit_columns(temp_df['wage_offer_of_pay_unit_merged'])
 
     return temp_df['wage_offer_of_pay_unit_merged']
 
-
-
-
-def normalize_pay_unit_columns(pay_unit_column=pd.DataFrame):
-    # throughout the datasample different wording is used in the column of the pay units.
+def standardize_pay_unit_columns(pay_unit_column=pd.DataFrame):
+    # Throughout the datasample different wording is used in the column of the pay units.
     # By creating a dictionary containing all abbreviations, we can replace contained long-wording strings by their abbreviations.
     unit_abbreviations = {
         "Year": "yr",
@@ -200,7 +196,7 @@ def clean_case_received_date(inital_df=pd.DataFrame):
     col_list = ["case_received_date"]
     temp_df = inital_df[col_list]
 
-    # Convert to column to datetime
+    # Convert the column to datetime.
     temp_df['case_received_date'] = pd.to_datetime(temp_df['case_received_date'])
 
     return temp_df['case_received_date']
@@ -210,7 +206,7 @@ def clean_decision_date(inital_df=pd.DataFrame):
     col_list = ["decision_date"]
     temp_df = inital_df[col_list]
 
-    # Convert to column to datetime
+    # Convert the column to datetime.
     temp_df['decision_date'] = pd.to_datetime(temp_df['decision_date'])
 
     return temp_df['decision_date']
@@ -259,7 +255,7 @@ def clean_case_number(inital_df=pd.DataFrame):
     temp_df = inital_df[col_list]
 
     # The two different columns 'case_no' and 'case_number' get merged because they both contain similar information and don't overap each other.
-    # The columns get merged through simmple concatenation, therefor all na values are replaced by ''.
+    # The columns get merged through simmple concatenation, therefore all NaN values are replaced by ''.
     temp_df['case_number_merged'] = temp_df['case_no'].fillna('') + temp_df['case_number'].fillna('')
 
     # Cells which contain '', even after the merge, will get converted into NaN values. Providing better data for the subsequent analysis.
@@ -277,7 +273,7 @@ def clean_foreign_worker_info_education_other(inital_df=pd.DataFrame):
     temp_df['fw_info_education_other'] = replaceNoneOrEmptyByNa(temp_df['foreign_worker_info_education_other'])
 
     # The two different columns 'foreign_worker_info_education_other' and 'fw_info_education_other' get merged because they both contain similar information and don't overap each other.
-    # The columns get merged through simmple concatenation, therefor all na values are replaced by ''.
+    # The columns get merged through simmple concatenation, therefore all NaN values are replaced by ''.
     temp_df['fw_info_education_other_merged'] = temp_df['foreign_worker_info_education_other'].fillna('') + temp_df[
         'fw_info_education_other'].fillna('')
 
@@ -291,7 +287,7 @@ def clean_foreign_worker_info_education_other(inital_df=pd.DataFrame):
 def replaceNoneOrEmptyByNa(inital_df=pd.DataFrame):
     temp_df = inital_df
 
-    # Leerwerte und 'None' werden zu NaN umgewandelt.
+    # Missing Values and 'None' get replaced by NaN.
     temp_df = temp_df.replace('None', np.nan, regex=True)
     temp_df = temp_df.replace(r'^\s*$', np.nan, regex=True)
     temp_df = temp_df.replace('', np.nan, regex=True)
@@ -304,7 +300,7 @@ def clean_country_of_citizenship(inital_df=pd.DataFrame):
     temp_df = inital_df[col_list]
 
     # The two different columns 'foreign_worker_info_education_other' and 'fw_info_education_other' get merged because they both contain similar information and don't overap each other.
-    # The columns get merged through simmple concatenation, therefor all na values are replaced by ''.
+    # The columns get merged through simmple concatenation, therefore all NaN values are replaced by ''.
     temp_df['country_of_citizenship_merged'] = temp_df['country_of_citizenship'].fillna('') + temp_df[
         'country_of_citzenship'].fillna('')
 
@@ -329,7 +325,7 @@ def clean_pw_unit_of_pay_9089(inital_df=pd.DataFrame):
     col_list = ["pw_unit_of_pay_9089"]
     temp_df = inital_df[col_list]
 
-    temp_df['pw_unit_of_pay_9089'] = normalize_pay_unit_columns(temp_df['pw_unit_of_pay_9089'])
+    temp_df['pw_unit_of_pay_9089'] = standardize_pay_unit_columns(temp_df['pw_unit_of_pay_9089'])
 
     return temp_df['pw_unit_of_pay_9089']
 
@@ -365,10 +361,10 @@ def clean_pw_job_title(inital_df=pd.DataFrame):
 
     temp_df['pw_job_title_merged'] = temp_df['pw_job_title_merged'].str.lower()
 
-    #delete characters like ,.*
+    # Delete characters like ,.*
     temp_df["pw_job_title_merged"] = cutOffUnusualCharacters(temp_df["pw_job_title_merged"])
 
-    #convert plural to singular
+    # Convert plural to singular
     temp_df["pw_job_title_merged"] = temp_df["pw_job_title_merged"].apply(cutOfflastCharacter, stringToCutOff = "s")
 
     return temp_df['pw_job_title_merged']
@@ -386,7 +382,7 @@ def cutOffUnusualCharacters(df = pd.DataFrame):
     return df
 
 def cutOfflastCharacter(x, stringToCutOff = str):
-    """ If the value is a string, check if the last character is char. If yes, then remove it.
+    """ If the value is a string, check if the last character the stringToCutOff. If yes, then remove it.
     """
     lengthOfChar = len(stringToCutOff)
 
@@ -406,30 +402,41 @@ def clean_foreign_worker_info_birth_country(inital_df=pd.DataFrame):
     return temp_df['foreign_worker_info_birth_country']
 
 def mergeTwoColumns(inital_df=pd.DataFrame, firstColumn = str, secondColumn = str):
-    temp_df = inital_df
-    #Caution: Only works with non-overalpping values
+    temp_df = inital_df.copy()
 
-    if modules.areTwoColumnsOverlapping(temp_df, firstColumn, secondColumn) == True:
-        temp_df['merged'] = temp_df[firstColumn].fillna(temp_df[secondColumn])
-        print("Achtung: Es liegen überlappende Spalten vor. Die erste Spalte wurde bei fehlenden Werte mit Inhalten der zweiten Spalte befüllt.")
+    # Columns are merged by addition, if the values are numbers.
+    # Float columns are always overlapping, because they have 0 values, instead of NaN.
+    if temp_df[firstColumn].dtype in [np.dtype('float64'), np.dtype('float32'), np.dtype('int32')] and temp_df[
+        secondColumn].dtype in [np.dtype('float64'), np.dtype('float32'), np.dtype('int32')]:
+        temp_df[firstColumn] = temp_df[firstColumn].fillna(0)
+        temp_df[secondColumn] = temp_df[secondColumn].fillna(0)
+
+        temp_df['merged'] = (temp_df[firstColumn] + temp_df[secondColumn])
+
+        print("Spalten wurden durch Addition zusammengeführt.")
+
     else:
-        # The two different columns get merged, normally because they both contain similar information and don't overap each other.
-        # The columns get merged through simmple concatenation, therefore all na values are replaced by ''.
-        temp_df['merged'] = temp_df[firstColumn].fillna('') + temp_df[secondColumn].fillna('')
-        # Cells which contain '', even after the merge, will get converted into NaN values. Providing better data for the subsequent analysis.
-        temp_df['merged'].replace('', np.nan, inplace=True)
+        if modules.areTwoColumnsOverlapping(temp_df, firstColumn, secondColumn) == True:
+            temp_df['merged'] = temp_df[firstColumn].fillna(temp_df[secondColumn])
+            print("Achtung: Es liegen überlappende Spalten vor. Die erste Spalte wurde bei fehlenden Werte mit Inhalten der zweiten Spalte befüllt.")
+        else:
+            # Columns are concatenated, if their values are f.e. objects.
+            # The two different columns get merged, normally because they both contain similar information and don't overlap each other.
+            # The columns get merged through simmple concatenation, therefore all NaN values are replaced by ''.
+            temp_df['merged'] = temp_df[firstColumn].fillna('') + temp_df[secondColumn].fillna('')
+            # Cells which contain '', even after the merge, will get converted into NaN values. Providing better data for the subsequent analysis.
+            temp_df['merged'] = temp_df['merged'].replace('', np.nan)
 
-        print("Spalten waren nicht überlappend und wurden fehlerfrei zusammengeführt.")
+            print("Spalten waren nicht überlappend und wurden fehlerfrei zusammengeführt.")
+
 
     return temp_df['merged']
 
-
-
 #Optional:
 def convert_case_status_to_certified_or_denied(df=pd.DataFrame):
-    # Datensatz enthält Fälle die zurückgezogen wurden 'withdrawn'. Da diese Fälle nicht relevant sind werden sie aus dem Datensatz gelöscht.
+    # The dataset conatins 'withdrawn' cases. This case can be disturbing is the subsequent analysis. Therefore they are deleted of the dataset.
     df = df[df[name_case_status] != 'Withdrawn']
-    # Der Status 'certified' und der Status 'certified-expired' werden zu dem Wert 'certified' zusammengefasst.
+    # The status 'certified' and 'certified-expired' are merged as 'certified'.
     df.loc[df[name_case_status] == 'Certified-Expired', 'case_status'] = 'Certified'
 
     return df
